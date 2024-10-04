@@ -1,0 +1,115 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\makeatletter
+\newcommand{\newlineauthors}{%
+  \end{@IEEEauthorhalign}\hfill\mbox{}\par
+  \mbox{}\hfill\begin{@IEEEauthorhalign}
+}
+\makeatother
+
+\title{Vehicle Detection Algorithm Based on Improved YOLOv5\\
+{\footnotesize \textsuperscript{}}
+\thanks{}
+}
+
+\author{
+    \IEEEauthorblockN{1\textsuperscript{st} Jie Zhou}
+    \IEEEauthorblockA{
+        2093868 \\
+        \textit{Fairleigh Dickinson University}\\
+        \textit{Vancouver Campus} \\
+        Vancouver, Canada \\
+        j.zhou1@student.fdu.edu
+        }
+    \and
+    \IEEEauthorblockN{2\textsuperscript{nd} Xiaohan Dong}
+    \IEEEauthorblockA{
+        2089036 \\
+        \textit{Fairleigh Dickinson University}\\
+        \textit{Vancouver Campus} \\
+        Vancouver, Canada \\
+        x.dong@student.fdu.edu
+        }
+    \and
+    \IEEEauthorblockN{3\textsuperscript{rd} Ruizhe Shang}
+    \IEEEauthorblockA{
+        2047438 \\
+        \textit{Fairleigh Dickinson University}\\
+        \textit{Vancouver Campus} \\
+        Vancouver, Canada \\
+        r.shang@student.fdu.edu
+        }
+    \newlineauthors
+    \IEEEauthorblockN{4\textsuperscript{th} Yingying Tian}
+    \IEEEauthorblockA{
+        2089338 \\
+        \textit{Fairleigh Dickinson University}\\
+        \textit{Vancouver Campus} \\
+        Vancouver, Canada \\
+        y.tian@student.fdu.edu
+        }
+    \and
+    \IEEEauthorblockN{5\textsuperscript{th} Ran Wang}
+    \IEEEauthorblockA{
+        2096067 \\
+        \textit{Fairleigh Dickinson University}\\
+        \textit{Vancouver Campus} \\
+        Vancouver, Canada \\
+        r.wang@student.fdu.edu
+        }
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This study proposes an improved algorithm for vehicle detection tasks in complex traffic environments, optimized based on the YOLOv5 network architecture. The main contributions of this article include: based on YOLOv5, improving the feature extraction network to enhance the model's detection ability for targets from different angles, and introducing attention mechanism to improve the model's feature extraction ability. The experimental results show that the improved YOLOv5 algorithm exhibits higher average accuracy (mAP) on public transportation datasets, especially in real-time applications such as traffic monitoring, with significant advantages. Meanwhile, the improved algorithm maintains low computational complexity and resource consumption, meeting the real-time and high-precision requirements in practical scenarios.
+\end{abstract}
+
+\begin{IEEEkeywords}
+vehicle, YOLOv5, attention mechanism, deep learning
+\end{IEEEkeywords}
+
+\section{Introduction}
+With the rapid development of intelligent transportation systems, vehicle detection, as one of its key tasks, has become an important part of modern urban traffic management, auto drive systems and traffic monitoring. Traditional vehicle detection methods often rely on manually designed features and perform poorly in complex traffic scenarios such as occlusion, lighting changes, and dense traffic flow. The rise of deep learning technology, especially the application of convolutional neural networks (CNN), has greatly promoted the development of vehicle detection technology. Among them, single-stage object detection algorithms represented by the YOLO (You Only Look Once) series, with their high detection accuracy and strong real-time performance, have gradually become the mainstream method for vehicle detection in traffic scenes.
+
+YOLOv5 is the latest version of the YOLO series, which has achieved a balanced optimization in detection speed and accuracy compared to previous generations of models, and is widely used in various object detection tasks. However, YOLOv5 still has shortcomings in dealing with some complex situations in traffic scenes, such as limited detection ability for small target vehicles and decreased detection accuracy when vehicles are dense or photographed from different angles. In order to further improve the performance of YOLOv5 in vehicle detection in traffic scenes, this paper has made various improvements and optimizations to the YOLOv5 model, and proposed a vehicle detection algorithm based on the improved YOLOv5, aiming to enhance the detection accuracy and robustness of the model.
+
+\section{Related Work}
+Recent studies on vehicle detection concentrate on image enhancement to improve basic visual properties in the pre-processing steps. Liu Di et al.\cite{id01} based on the encoder-decoder structure, using a fusion attention mechanism, and additional attention to space and channel features. Hou Q et al. \cite{id02} proposed a new coordinate attention mechanism that embeds location information into channel attention.Li et al. \cite{id03}proposed Trident Network, in which there are 3 branches in the Trident module, and the dilated convolution coefficients of the convolution layer of each branch have different receptive fields. 
+Despite high accuracy of current CNN-based vehicle detection methods, the limited computational resources on edge devices hinder these methods to be deployed. To improve the inference efficiency of neural networks, several techniques have been developed, including network pruning, network quantization, and knowledge distillation. Specifically, Network pruning aims at removing redundant parameters of low importance from the model to obtain a compact model structure while maintaining comparable accuracy. Network quantization, on the other hand, converts floating-point parameters into low-bit numbers to reduce memory consumption and computational complexity \cite{id04}. Knowledge distillation aims to transfer the knowledge from a large teacher model to a small student model to reduce the model size and computational cost\cite{id05}.
+
+\section{Design and Implementation}
+In vehicle detection tasks, with the application of deep learning, YOLOv5 occupies an important position among many target detection algorithms due to its efficient performance. However, in the face of complex traffic scenarios, YOLOv5 still has shortcomings in small target detection, background interference, and occlusion. To improve the detection accuracy and robustness of the model in complex environments, this paper introduces the CA (Coordinated Attention) attention mechanism and Asymmetric Convolution to further improve the detection performance of the model while maintaining the speed advantage of YOLOv5.
+The attention mechanism is an important breakthrough in deep learning in recent years. Especially in image processing tasks, the attention mechanism enhances the model's attention to important information by giving the model different spatial positions and different weights to feature channels. The CA (Coordinate Attention) mechanism is an improved form of the attention mechanism. It aims to capture spatial information and channel information at the same time and solve the problem of traditional attention mechanisms 'perception of insufficient spatial position information.
+Traditional attention mechanisms such as SE (Squeeze-and-Excitation) only focus on the relationship between channels and ignore important positional information in the image. By introducing coordinate encoding, the CA mechanism decouples two-dimensional spatial information into horizontal and vertical attention and captures spatial features in different directions respectively. At the same time, the CA mechanism allocates weights in the channel dimension, thereby capturing global information while better retaining the spatial location information of the target.
+Standard convolution operations in Convolutional Neural Networks (CNN) are usually symmetric, that is, the convolution kernels used are the same size in all directions, such as a 3×3 or 5×5 convolution kernel. Although this symmetric convolution method is very effective in feature extraction, it can increase unnecessary computing overhead in some cases and cannot capture detailed information in different directions in a targeted manner. Asymmetric convolution uses convolution kernels with different directions (such as 3×1 or 1×3) to replace traditional symmetric convolution, thereby reducing the amount of computation and enhancing the model's ability to extract information in specific directions.
+
+\section{Devices}
+The choice of hardware environment is crucial for the speed and performance of experimental results. Typical deep learning algorithms, especially object detection algorithms, require high computing resources. Therefore, this article chooses devices that can support efficient parallel computing in hardware environment configuration. The following is the hardware environment configuration used in the paper:
+
+\textit{GPU (Graphics Processing Unit)}: In order to accelerate the model training and inference process, this article chooses a high-performance GPU NVIDIA GeForce RTX 4060.
+
+\textit{CPU (Central Processing Unit)}: Although the main computing tasks are undertaken by GPUs, CPU performance also plays a critical role in data preprocessing, model deployment, and lightweight processing. This article selects Intel Core Ultra 9 185H.
+
+\textit{Memory (RAM)}: During the training process of deep learning models, a large amount of image data and intermediate computational results need to be loaded, so sufficient memory is crucial for system performance. This article chooses a memory configuration with at least 16GB DDR4 RAM to ensure that there are no memory bottlenecks during the model training process. If the dataset size is large or high-resolution images are used during training, 64GB of memory may also be used.
+
+\textit{Operating System}: The experimental environment in this article is based on the Ubuntu 22.04 LTS operating system.
+
+\textit{Programming Language}: The code implementation in this article mainly uses Python language, and Python 3.8 version has stability and good library support.
+
+\bibliographystyle{unsrt}
+\bibliography{refereces}
+
+\end{document}

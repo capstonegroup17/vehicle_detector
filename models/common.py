@@ -21,6 +21,8 @@ import torch
 import torch.nn as nn
 from PIL import Image
 from torch.cuda import amp
+from DyRelu import  APReLU, DyReLUA, DyReLUB, DyReLUC, Serf, AconC
+#from models.cbam import CBAM
 
 # Import 'ultralytics' package or install if missing
 try:
@@ -69,6 +71,99 @@ def autopad(k, p=None, d=1):
         p = k // 2 if isinstance(k, int) else [x // 2 for x in k]  # auto-pad
     return p
 
+
+###################
+
+
+class Conv_CBAM(nn.Module):
+    # Standard convolution
+    def __init__(self, c1, c2, k=1, s=1, p=None, g=1, act=True):  # ch_in, ch_out, kernel, stride, padding, groups
+        super(Conv_CBAM, self).__init__()
+        self.conv = nn.Conv2d(c1, c2, k, s, autopad(k, p), groups=g, bias=False)
+        self.bn = nn.BatchNorm2d(c2)
+        self.act = nn.SiLU() if act else nn.Identity()
+        self.ca = ChannelAttention(c2)
+        self.sa = SpatialAttention(7)
+
+    def forward(self, x):
+        x = self.act(self.bn(self.conv(x)))
+        x = self.ca(x) * x
+        x = self.sa(x) * x
+        return x
+
+    def fuseforward(self, x):
+        return self.act(self.conv(x))
+  
+#############################################
+# CBAM模块
+#############################################
+
+class ChannelAttention(nn.Module):
+    def __init__(self, in_planes, ratio=16):
+        super(ChannelAttention, self).__init__()
+        self.avg_pool = nn.AdaptiveAvgPool2d(1)
+        self.max_pool = nn.AdaptiveMaxPool2d(1)
+
+        self.fc1 = nn.Conv2d(in_planes, in_planes // ratio, 1, bias=True)       #nn.Conv2d(in_planes, in_planes // ratio, 1, bias=False),ACBlock(in_planes, in_planes // ratio, 1)
+        #self.relu1 = nn.ReLU()
+        self.relu1 = APReLU(in_planes // ratio) #自适应ReLU
+        # self.relu1 = AconC(in_planes // ratio)
+        #self.relu1 = DyReLUA(in_planes // ratio)
+        self.fc2 = nn.Conv2d(in_planes // ratio, in_planes, 1, bias=False)       #nn.Conv2d(in_planes // ratio, in_planes, 1, bias=False),ACBlock(in_planes // ratio, in_planes, 1)
+
+        self.sigmoid = nn.Sigmoid() #sigmoid fucntion
+
+    def forward(self, x):
+        b, c, _, _ = x.size()
+        avg_out = self.fc2(self.relu1(self.fc1(self.avg_pool(x))))
+        max_out = self.fc2(self.relu1(self.fc1(self.max_pool(x))))
+        out = (avg_out + max_out).view(b, c, 1, 1)
+        return x * self.sigmoid(out)
+
+class SpatialAttention(nn.Module):
+    def __init__(self, kernel_size=7):
+        super(SpatialAttention, self).__init__()
+
+        assert kernel_size in (3, 7), 'kernel size must be 3 or 7'
+        padding = 3 if kernel_size == 7 else 1
+
+        #self.conv1 = ACBlock(2, 1, kernel_size, padding=padding) #nn.Conv2d(2, 1, kernel_size, padding=padding, bias=False)  #nn.Conv2d(2, 1, kernel_size, padding=padding, bias=False)
+        self.conv1 = nn.Conv2d(2, 1, kernel_size, padding=padding, bias=False)
+        self.sigmoid = nn.Sigmoid()
+
+    def forward(self, x):
+        b, c, w, h = x.size()
+        avg_out = torch.mean(x, dim=1, keepdim=True)
+        max_out, _ = torch.max(x, dim=1, keepdim=True)
+        out = torch.cat([avg_out, max_out], dim=1)
+        out = self.conv1(out).view(b, 1, w, h)
+        return x * self.sigmoid(x)
+
+
+
+
+
+
+
+# class Conv(nn.Module):
+#     # Standard convolution
+#     def __init__(self, c1, c2, k=1, s=1, p=None, g=1, act=True):  # ch_in, ch_out, kernel, stride, padding, groups
+#         super(Conv, self).__init__()
+#         self.conv = nn.Conv2d(c1, c2, k, s, autopad(k, p), groups=g, bias=False)
+#         self.bn = nn.BatchNorm2d(c2)
+#         self.act = nn.LeakyReLU(0.1, inplace=True) if act else nn.Identity()
+#
+#     def forward(self, x):
+#         return self.act(self.bn(self.conv(x)))
+#
+#     def fuseforward(self, x):
+#         return self.act(self.conv(x))
+
+
+
+
+
+#####################
 
 class Conv(nn.Module):
     """Applies a convolution, batch normalization, and activation function to an input tensor in a neural network."""

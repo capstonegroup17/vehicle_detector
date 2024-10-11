@@ -21,7 +21,7 @@ Clone the repository and install the required dependencies:
 git clone <https://github.com/yourgithub/improved-yolov5-vehicle-detection.git>
 
 ```python
-cd improved-yolov5-vehicle-detection
+cd vehicle-detector
 
 pip install -r requirements.txt
 ```
@@ -67,4 +67,4 @@ For optimal performance, we recommend the following hardware configuration:
 
 **License**
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.  - see the [LICENSE](LICENSE) file for details.

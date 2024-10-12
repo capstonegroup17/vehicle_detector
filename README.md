@@ -17,10 +17,9 @@ This version of YOLOv5 has been re-engineered with the goal of improving perform
 **Installation**
 
 Clone the repository and install the required dependencies:
+```bash
+git clone https://github.com/capstonegroup17/vehicle_detector
 
-git clone <https://github.com/yourgithub/improved-yolov5-vehicle-detection.git>
-
-```python
 cd vehicle-detector
 
 pip install -r requirements.txt

@@ -22,7 +22,7 @@ import torch.nn as nn
 from PIL import Image
 from torch.cuda import amp
 
-from dyrelu import APReLU, DyReLUA, DyReLUB
+from models.dyrelu import DyReLU
 
 # from models.cbam import CBAM
 

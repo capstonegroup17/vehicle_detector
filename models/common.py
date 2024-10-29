@@ -76,9 +76,6 @@ def autopad(k, p=None, d=1):
     return p
 
 
-###################
-
-
 class Conv_CBAM(nn.Module):
     # Standard convolution
     def __init__(
@@ -99,11 +96,6 @@ class Conv_CBAM(nn.Module):
 
     def fuseforward(self, x):
         return self.act(self.conv(x))
-
-
-#############################################
-# CBAM模块
-#############################################
 
 
 class ChannelAttention(nn.Module):
@@ -153,9 +145,6 @@ class CBAM(nn.Module):
         out = self.channel_attention(x) * x
         out = self.spatial_attention(out) * out
         return out
-
-
-#####################
 
 
 class Conv(nn.Module):
@@ -469,6 +458,68 @@ class Focus(nn.Module):
             )
         )
         # return self.conv(self.contract(x))
+
+
+#######################################################################
+# SEnet
+#######################################################################
+# SENet
+class SELayer(nn.Module):
+    def __init__(self, channel, reduction=1):
+        super(SELayer, self).__init__()
+        self.avg_pool = nn.AdaptiveAvgPool2d(1)
+        self.fc1 = nn.Sequential(
+            nn.Linear(channel, channel // reduction),
+            nn.ReLU(inplace=True),  # nn.ReLU(inplace=True),原始
+            nn.Linear(channel // reduction, channel),
+            nn.Sigmoid(),
+        )
+        self.fc2 = nn.Sequential(
+            nn.Conv2d(
+                channel, channel // reduction, 1, bias=False
+            ),  # ACBlock(channel, channel // reduction, 1),   #nn.Conv2d(channel, channel // reduction, 1, bias=False),原始
+            nn.ReLU(inplace=True),  # nn.ReLU(inplace=True),原始
+            nn.Conv2d(
+                channel, channel // reduction, 1, bias=False
+            ),  # ACBlock(channel, channel // reduction, 1),   #nn.Conv2d(channel, channel // reduction, 1, bias=False),
+            nn.Sigmoid(),
+        )
+        self.fc1[0].weights = nn.Parameter(
+            torch.Tensor([channel, channel / reduction, 1, 1])
+        )
+        self.fc1[1].weights = nn.Parameter(
+            torch.Tensor([channel / reduction, channel, 1, 1])
+        )
+
+    def forward(self, x):
+        b, c, _, _ = x.size()
+        y = self.avg_pool(x).view(b, c)  # 全连接层只接受2维的输入
+        y = self.fc1(y).view(b, c, 1, 1)
+        return x * y
+
+
+# 将SEnet模块加载了csp模块的后面而不是残差模块上
+# 正确的改动
+class SENetC3(nn.Module):
+    # CSP Bottleneck with 3 convolutions
+    def __init__(
+        self, c1, c2, n=1, shortcut=True, g=1, e=0.5
+    ):  # ch_in, ch_out, number, shortcut, groups, expansion
+        super(SENetC3, self).__init__()
+        c_ = int(c2 * e)  # hidden channels
+        self.cv1 = Conv(c1, c_, 1, 1)
+        self.cv2 = Conv(c1, c_, 1, 1)
+        self.cv3 = Conv(2 * c_, c2, 1)  # act=FReLU(c2)
+        self.m = nn.Sequential(
+            *[Bottleneck(c_, c_, shortcut, g, e=1.0) for _ in range(n)]
+        )
+        self.senet = SELayer(c2, 16)
+        # self.m = nn.Sequential(*[CrossConv(c_, c_, 3, 1, g, 1.0, shortcut) for _ in range(n)])
+
+    def forward(self, x):
+        return self.senet(
+            self.cv3(torch.cat((self.m(self.cv1(x)), self.cv2(x)), dim=1))
+        )
 
 
 class GhostConv(nn.Module):

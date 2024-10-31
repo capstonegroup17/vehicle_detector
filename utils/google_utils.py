@@ -1,4 +1,4 @@
-# Download utils
+# Google utils: https://cloud.google.com/storage/docs/reference/libraries
 
 import os
 import platform
@@ -115,9 +115,6 @@ def get_token(cookie="./cookie"):
                 return line.split()[-1]
     return ""
 
-# Google utils: https://cloud.google.com/storage/docs/reference/libraries ----------------------------------------------
-#
-#
 # def upload_blob(bucket_name, source_file_name, destination_blob_name):
 #     # Uploads a file to a bucket
 #     # https://cloud.google.com/storage/docs/uploading-objects#storage-upload-object-python

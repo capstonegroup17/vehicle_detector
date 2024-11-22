@@ -13,6 +13,7 @@ import torch
 import torch.nn as nn
 from PIL import Image
 from torch.cuda import amp
+from ACNet import ACBlock
 
 from utils.datasets import exif_transpose, letterbox
 from utils.general import non_max_suppression, make_divisible, scale_coords, increment_path, xyxy2xywh, save_one_box
@@ -39,7 +40,7 @@ class Conv(nn.Module):
     # Standard convolution
     def __init__(self, c1, c2, k=1, s=1, p=None, g=1, act=True):  # ch_in, ch_out, kernel, stride, padding, groups
         super().__init__()
-        self.conv = nn.Conv2d(c1, c2, k, s, autopad(k, p), groups=g, bias=False)
+        self.conv = ACBlock(c1, c2, k, s, autopad(k, p), groups=g)  #Asymmetric convolution
         self.bn = nn.BatchNorm2d(c2)
         self.act = nn.SiLU() if act is True else (act if isinstance(act, nn.Module) else nn.Identity())
 
